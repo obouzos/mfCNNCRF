@@ -1,2 +1,2 @@
-# mfCNNCRF
+# mf-CNNCRF
  mf-CNNCRF method
