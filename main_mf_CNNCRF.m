@@ -33,7 +33,7 @@ x2g=double(x2g);
  
 Xg=cat(3,x1g,x2g); % stack of grayscale input images
 
-clear x1 x2 x1g x2g a
+clear x1 x2 x1g x2g
 X=Xg/255; clear Xg
 %% Estimation of Unary term: U
 U=get_Unary(X,Unet,cutoff);
