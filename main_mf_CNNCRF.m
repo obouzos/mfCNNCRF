@@ -1,36 +1,54 @@
 %% mf-CNNCRF
-% Code for mf-CNNCRF
+% Code for the method mf-CNNCRF
 
 cutoff=.01; % for the negative log-likelihoods
 %% Load Unet
 
-load('./Unet.mat','dlnet')
+path_Unet='./';
+load([path_Unet,'Unet.mat'],'dlnet')
 Unet=dlnet; clear dlnet;
-CombName='mfCNNCRF';
+
 %% Load Vnet
 
-load('./Vnet.mat','dlnet');
+path_Vnet='./';
+load([path_Vnet,'Vnet.mat'],'dlnet');
 Vnet=dlnet; clear dlnet;
-%% Load Image set
 
-x1=imread('imgA.jpg'); x1g=rgb2gray(x1); x1g=double(x1g);
-x2=imread('imgB.jpg'); x2g=rgb2gray(x2); x2g=double(x2g);
-e=cat(4,x1,x2);
+%% Load Image set
+% x1, x2 are the input images of type uint8 of current path
+x1=imread("imgA.jpg");
+x2=imread("imgB.jpg");
+
+%% Convert to image stack of grayscale images
+if size(x1,3)==3 % Convert input colour image to grayscale
+    e=cat(4,x1,x2);
+    x1g=rgb2gray(x1); 
+    x2g=rgb2gray(x2); 
+else % Input images are grayscale
+   e=cat(3,x1,x2);
+   x1g=x1; x2g=x2;
+end
+x1g=double(x1g);
+x2g=double(x2g);
  
-Xg=cat(3,x1g,x2g); clear x1 x2 x1g x2g
+Xg=cat(3,x1g,x2g); % stack of grayscale input images
+
+clear x1 x2 x1g x2g a
 X=Xg/255; clear Xg
 %% Estimation of Unary term: U
-
 U=get_Unary(X,Unet,cutoff);
+
 %% Estimation of Smoothness Probabilities in 4 directions: PH, PV, PD1, PD2
-
 [PH,PV,PD1,PD2]=get_HVD1D2(X,Vnet);
-%% Application of Conditional Random Field
 
+%% Application of Conditional Random Field
 DecisionMap=CRFapp(U,PH,PV,PD1,PD2,cutoff);
+
 %% Fused Image
 
 Fused=Fused_Given_Labels(e,DecisionMap);
+figure; imshow(Fused);
+
 
 return
 %%
@@ -39,7 +57,6 @@ function p=apply_cutoff(p,cutoff)
     p(p<cutoff)=cutoff;
     p(p>1-cutoff)=1-cutoff;
 end
-
 
 function [U]=get_Unary(x,Unet,cutoff)
     % x: input grayscale images
