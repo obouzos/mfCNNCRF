@@ -1,4 +1,5 @@
-# mf-CNNCRF
+# mf-CNNCRF: A Convolutional Neural Network-Based Conditional Random Field Model for Structured Multi-Focus Image Fusion Robust to Noise
+
 Includes the code for the method mf-CNNCRF of the paper: 
 
 https://ieeexplore.ieee.org/document/10129238
